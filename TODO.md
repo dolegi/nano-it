@@ -1,0 +1,6 @@
+- test summary
+- async tests
+-- promise.all
+- run multiple files
+- require tree mocking
+- benchmark
