@@ -1,6 +1,7 @@
-- test summary
-- async tests
--- promise.all
+- timeouts
 - run multiple files
+- test summary
+- async running of tests
+-- promise.all
 - require tree mocking
 - benchmark
