@@ -1,4 +1,3 @@
-- timeouts
 - run multiple files
 - test summary
 - async running of tests

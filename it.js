@@ -1,11 +1,13 @@
-c=(...x)=>console.log('\u001b[0m',...x)
-progress=()=>'\u001b[33m'+good+'/'+(good+bad)
-success=d=>++good&&c(progress(),'\u001b[32m'+d)
-fail=(d,e)=>++bad&&c(progress(),'\u001b[31m'+d+'\n'+e.stack)
-error=(d,e)=>c('\u001b[41m'+d+'\n'+e+e.stack)
+const { spawn } = require('child_process')
+
+log=(...x)=>console.log('\u001b[0m',__filename,...x)
+progress=()=>'\u001b[33m'+passed+'/'+total
+success=d=>++passed&&++total&&log(progress(),'\u001b[32m'+d)
+fail=(d,e)=>++total&&log(progress(),'\u001b[31m'+d+'\n'+e.stack)
+error=(d,e)=>log('\u001b[31m'+d+'\n'+e+e.stack)
 assert=require('assert')
-good=0
-bad=0
+passed=0
+total=0
 timeout=5000
 
 process.on('uncaughtException', e=>error('Uncaught Exception', e))
@@ -26,3 +28,4 @@ module.exports=async(d,f,t=timeout) => {
   running=false
 }
 
+process.argv.slice(2).forEach(file => require('./'+file))
