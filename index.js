@@ -11,7 +11,7 @@ it('1 plus 1 is 2 promise', new Promise(resolve => {
 it('1 plus 1 is 2 async', async () => {
   await new Promise(resolve => {
     setTimeout(() => {
-    resolve(console.log('1'))
+      resolve(console.log('1'))
     }, 1500)
   })
   assert(1+1===2)

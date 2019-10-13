@@ -3,20 +3,26 @@ passed = 0
 total = 0
 
 class Runner {
-  constructor(desc) {
-    this.desc=desc 
+  constructor(filename, desc) {
+    this.desc=filename + '\u001b[35m ' + desc 
+    this.output=''
+    this.running = true
   }
 
-  success(d) {
-    ++passed&&++total&&this.log(this.progress(),'\u001b[32m'+d)
+  runnning () {
+    return this.running
   }
 
-  fail(d,e) {
-    ++total&&this.log(this.progress(),'\u001b[31m'+d+'\n'+e.stack)
+  success() {
+    ++passed&&++total&&this.log(this.progress(),'\u001b[32m /')
+  }
+
+  fail(e) {
+    ++total&&this.log(this.progress(),'\u001b[31m X'+'\n'+e.stack)
   }
 
   error(d,e) {
-    // this.log('\u001b[31m'+d+'\n'+e+e.stack)
+    this.log('\u001b[31m\n'+d+'\n'+e+e.stack)
   }
 
   progress() {
@@ -24,50 +30,61 @@ class Runner {
   }
 
   log(...x){
-    console.log('\u001b[0m',this.desc,...x)
+    this.output += '\u001b[0m' + this.desc + ' ' + x.join('')
+  }
+
+  finished() {
+    this.running = false
+    console.log(this.output)
   }
 }
 
 module.exports= async(d,f,t=5000) => {
   const filename = _getCallerFile()
 
-  const runner = new Runner(filename)
+  const runner = new Runner(filename, d)
   process.on('uncaughtException', e=>runner.error('Uncaught Exception', e))
-  let running=true
   setTimeout(()=>{
-    running && runner.fail(d,new Error('Test timed out after '+t+'ms'))
-    running=false
+    running && runner.fail(new Error('Test timed out after '+t+'ms'))
+    runner.finished()
   },t)
 
   try {
     await (f.then ? f : f())
-    running && runner.success(d)
+    runner.running && runner.success()
   } catch (e) {
-    runner.fail(d,e)
+    runner.fail(e)
   }
-  running=false
+  runner.finished()
 }
 
 function _getCallerFile() {
-    try {
-        var err = new Error();
-        var callerfile;
-        var currentfile;
+  try {
+    var originalFunc = Error.prepareStackTrace;
+    var err = new Error();
+    var callerfile;
+    var currentfile;
 
-        Error.prepareStackTrace = function (err, stack) { return stack; };
+    Error.prepareStackTrace = function (err, stack) { return stack; };
 
-        currentfile = err.stack.shift().getFileName();
+    currentfile = err.stack.shift().getFileName();
 
-        while (err.stack.length) {
-            callerfile = err.stack.shift().getFileName();
+    while (err.stack.length) {
+      const callsite = err.stack.shift()
+      callerfile = callsite.getFileName();
 
-            if(currentfile !== callerfile) return callerfile;
-        }
-    } catch (err) {}
-    return undefined;
+      if(currentfile !== callerfile) {
+        return callerfile + ':' + callsite.getLineNumber()
+      }
+    }
+  } catch (err) {}
+  Error.prepareStackTrace = originalFunc; 
+  return undefined;
 }
 
+setTimeout(() => {
 process.argv.slice(2).forEach(file => {
   require('./'+file)
 })
+}, 5000)
 
