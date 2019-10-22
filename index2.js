@@ -1,5 +1,3 @@
-const it = require('./it')
-
 it('1 plus 1 is 2', () => {
   assert(1+1===2)
 })

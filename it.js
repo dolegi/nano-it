@@ -39,12 +39,35 @@ class Runner {
   }
 }
 
-module.exports= async(d,f,t=5000) => {
-  const filename = _getCallerFile()
+function getCallerFile() {
+  const originalFunc = Error.prepareStackTrace
+  try {
+    const err = new Error()
+    let callerfile
+    let currentfile
+
+    Error.prepareStackTrace = function (_err, stack) { return stack }
+
+    currentfile = err.stack.shift().getFileName()
+
+    while (err.stack.length) {
+      const callsite = err.stack.shift()
+      callerfile = callsite.getFileName()
+
+      if(currentfile !== callerfile) {
+        return callerfile + ':' + callsite.getLineNumber()
+      }
+    }
+  } catch (err) {}
+  Error.prepareStackTrace = originalFunc 
+}
+
+global.it = async (d,f,t=5000) => {
+  const filename = getCallerFile()
 
   const runner = new Runner(filename, d)
   process.on('uncaughtException', e=>runner.error('Uncaught Exception', e))
-  setTimeout(()=>{
+  const timer = setTimeout(()=>{
     running && runner.fail(new Error('Test timed out after '+t+'ms'))
     runner.finished()
   },t)
@@ -55,34 +78,15 @@ module.exports= async(d,f,t=5000) => {
   } catch (e) {
     runner.fail(e)
   }
+  timer.close()
   runner.finished()
 }
 
-function _getCallerFile() {
-  try {
-    var originalFunc = Error.prepareStackTrace;
-    var err = new Error();
-    var callerfile;
-    var currentfile;
-
-    Error.prepareStackTrace = function (err, stack) { return stack; };
-
-    currentfile = err.stack.shift().getFileName();
-
-    while (err.stack.length) {
-      const callsite = err.stack.shift()
-      callerfile = callsite.getFileName();
-
-      if(currentfile !== callerfile) {
-        return callerfile + ':' + callsite.getLineNumber()
-      }
-    }
-  } catch (err) {}
-  Error.prepareStackTrace = originalFunc; 
-  return undefined;
+global.mock = (moduleName, mockFunction) => {
+  require(require.resolve(moduleName))
+  require.cache[require.resolve(moduleName)].exports = mockFunction
 }
 
 process.argv.slice(2).forEach(file => {
   require('./'+file)
 })
-
