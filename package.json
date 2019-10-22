@@ -1,16 +1,16 @@
 {
   "name": "nano-it",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.3",
+  "description": "Nano unit testing library",
   "main": "it.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["test","it"],
+  "keywords": ["test","it","unit","nano"],
   "author": "dolegi",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dolegi/nit.git"
+    "url": "https://github.com/dolegi/nano-it.git"
   }
 }
