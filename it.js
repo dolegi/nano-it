@@ -51,7 +51,7 @@ module.exports= async(d,f,t=5000) => {
 
   try {
     await (f.then ? f : f())
-    runner.running && runner.success()
+    runner.success()
   } catch (e) {
     runner.fail(e)
   }
@@ -82,9 +82,7 @@ function _getCallerFile() {
   return undefined;
 }
 
-setTimeout(() => {
 process.argv.slice(2).forEach(file => {
   require('./'+file)
 })
-}, 5000)
 
