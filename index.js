@@ -26,3 +26,10 @@ it('1 plus 1 is 3 async', async () => {
   await new Promise(resolve => resolve(console.log('1')))
   assert(1+1===3)
 })
+
+it('mock correctly', () => {
+  mock('./require', () => 'test')
+  const r = require('./require')
+
+  assert(r() === 'test')
+})
