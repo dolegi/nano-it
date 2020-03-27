@@ -1,6 +1,6 @@
 {
   "name": "nano-it",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Nano unit testing library",
   "main": "it.js",
   "scripts": {
