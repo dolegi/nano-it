@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 assert=require('assert')
 passed = 0
 total = 0
